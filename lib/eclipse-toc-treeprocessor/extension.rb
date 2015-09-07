@@ -11,24 +11,25 @@ include ::Asciidoctor
 #
 
 class EclipseTocTreeprocessor < Extensions::Treeprocessor
+  
   def process document
-      
+    
     generated = output_file document
-    output = generate_eclipse_toc document, generated
+    output = generate_eclipse_toc document, generated, 2
     write_output output, generated
       
     nil
   end
   
-  def generate_eclipse_toc document, generated
-    
+  def generate_eclipse_toc node, generated, max_level_chunked
     output = ""
     current_level = 0
     
-    ((document.find_by context: :section) || []).each do |sect|
-          
+    ((node.find_by context: :section) || []).each do |sect|
+        
+      if sect.level <= max_level_chunked
         if sect.level == 0
-          current_level=0
+          #current_level=0
           section_title = sanitize sect.title
           output = output << "<toc label=\"#{section_title}\">"
         else
@@ -40,10 +41,12 @@ class EclipseTocTreeprocessor < Extensions::Treeprocessor
           
           current_level = sect.level
           section_title = sanitize sect.title
+
+          # this should be adapted to previous
           output = output << "<topic label=\"#{section_title}\" href=\"#{generated}.html\##{sect.id}\"> "
-          
+
         end
-          
+      end
       end
       
       current_level.times do
