@@ -1,5 +1,6 @@
 require 'asciidoctor/extensions' unless RUBY_ENGINE == 'opal'
 require "rexml/document" unless RUBY_ENGINE == 'opal'
+require_relative 'chunk'
 
 include ::Asciidoctor
 
@@ -13,12 +14,18 @@ include ::Asciidoctor
 class EclipseTocTreeprocessor < Extensions::Treeprocessor
   
   def process document
-    
+    puts "Enter Process"
     generated = output_file document
+    chunk_output document, 2
     output = generate_eclipse_toc document, generated, 2
     write_output output, generated
-      
+    puts "Output Process"
     nil
+  end
+  
+  def chunk_output node, depth
+    chunk = ChunkDocuments.new(depth)
+    chunk.split_document node
   end
   
   def generate_eclipse_toc node, generated, max_level_chunked
